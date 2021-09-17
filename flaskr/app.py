@@ -1,5 +1,6 @@
 from flaskr import create_app
 from .modelos import db, Cancion, Album, Usuario, Medio
+from .modelos import AlbumSchema, CancionSchema, UsuarioSchema
 
 app = create_app('default')
 app_context = app.app_context()
@@ -16,22 +17,17 @@ db.create_all()
 # test the app
 
 with app.app_context():
-    c1 = Cancion(titulo = "PrimeraPrueba", minutos = 2, segundos = 25, interprete = "ivan")
-    c2  = Cancion(titulo = "SegundaPrueba", minutos = 3, segundos = 12, interprete = "catalina")
-    u = Usuario(nombre = 'Ivan', contrasena = "1234")
-    a = Album(titulo = "albumPrueba", anio = 2020, descripcion = "Este es el nuevo album", medio = Medio.CD)
-    a.canciones.append(c1)
-    a.canciones.append(c2)
-    u.albumes.append(a)
-    db.session.add(u)
+    album_schema = AlbumSchema() # it transform the information from pythn to json format
+    cancion_schema = CancionSchema()
+    A = Album(titulo = "prueba", anio = 2020, descripcion = "texto", medio = Medio.CD)
+    C = Cancion( titulo = "cancionPrueba", minutos = 2, segundos = 1, interprete = "interpretePrueba")
+    A.canciones.append(C)
+    db.session.add(C)
+    db.session.add(A)
     db.session.commit()
-    print(Usuario.query.all())
-    print(Usuario.query.all()[0].albumes)
-    print(Album.query.all()[0].canciones)
-    print(Cancion.query.all())
-    db.session.delete(a)
-    print(Album.query.all())
-    print(Cancion.query.all())
-    print(u)
+    print([album_schema.dumps(album) for album in Album.query.all()])
+    print([cancion_schema.dumps(cancion) for cancion in Cancion.query.all()])
+
+
 
     # to take a query through all the songs

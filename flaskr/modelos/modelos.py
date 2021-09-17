@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow import fields # to serialize enumartion objects in sqlalchemy
 import enum
 
 
@@ -42,3 +44,32 @@ class Usuario(db.Model):
     nombre = db.Column(db.String(64))
     contrasena = db.Column(db.String(32))
     albumes = db.relationship('Album', cascade = 'all, delete, delete-orphan') # to set composition relationship between classes
+
+
+# how to transform a enumaration into json file
+
+class EnumDiccionario(fields.Field):
+    def _serialize(self,value, attr, obj, **kwargs):
+        if value is None: 
+            return None
+        return {"llave": value.name, "valor": value.value}
+
+class AlbumSchema(SQLAlchemyAutoSchema):
+    medio = EnumDiccionario(attribute=('medio'))
+    class Meta:
+        model = Album # the model that we want to serialize is of the class Album
+        include_relationships = True 
+        load_instance = True 
+
+class CancionSchema(SQLAlchemyAutoSchema):
+    class Meta: 
+        model = Cancion 
+        include_relationships = True 
+        load_instance  = True 
+
+class UsuarioSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Usuario 
+        include_relationships = True 
+        load_instance = True 
+
